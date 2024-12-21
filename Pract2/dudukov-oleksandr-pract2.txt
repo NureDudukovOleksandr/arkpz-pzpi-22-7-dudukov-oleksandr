@@ -1,1 +1,107 @@
 
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+
+
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+Кафедра «Програмна інженерія»
+
+
+
+
+ЗВІТ
+до практичного заняття №2 з дисципліни
+«Аналіз та рефакторинг коду»
+На тему: «Методи рефакторингу коду программного забезпечення»
+
+
+
+
+
+Виконав:	Прийняв:
+ст. гр. ПЗПІ-22-7	ст. викладач кафедри ПІ
+Дудуков Олександр Сергійович	Сокорчук Ігор Петрович
+
+
+
+
+
+
+
+
+
+
+
+Харків 2024
+1	МЕТА
+Навчитися ідентифікувати проблеми в коді та використовувати відповідні методи рефакторингу для покращення його якості.
+
+2	ЗАВДАННЯ
+Cтудент повинен обрати три методи рефакторингу коду із книги Мартіна Фаулера «Refactoring. Improving the Design of Existing Code». Навести приклади свого особистого коду (з курсових, лабораторних або інших проєктів), який потребує покращення, та продемонструвати застосування обраних методів.
+
+
+
+3	ХІД РОБОТИ
+Вся робота була виконана та показана на слайдах презентації. Вона містить всі обрані методи, приклади рефакторингу коду та висновки, які наведені у Додатку А.
+
+                                                        ВИСНОВКИ
+Ми ознайомилися з основами рефакторингу коду та його важливістю для підвищення якості програмного забезпечення. Застосування кожного методу дало змогу суттєво покращити структуру й читабельність коду, що, своєю чергою, зробило його простішим для підтримки та подальшого розширення.
+
+
+Посилання на відео презентацію - https://youtu.be/CEdZkBtmD1I
+
+
+
+
+                                                         ДОДАТОК А
+Replace Temp with Query (Замінення тимчасової змінної на запит)
+Код до рефакторингу:
+class Order(val quantity: Int, val itemPrice: Double) {
+    fun getPrice(): Double {
+        val basePrice = quantity * itemPrice
+        val discount = if (quantity > 100) 0.1 else 0.05
+        return basePrice - (basePrice * discount)
+    }
+}
+Код після рефакторингу:
+class Order(val quantity: Int, val itemPrice: Double) {
+    fun getPrice(): Double = basePrice() - discount()
+
+    private fun basePrice() = quantity * itemPrice
+
+    private fun discount() = basePrice() * if (quantity > 100) 0.1 else 0.05
+}
+
+Move Method (Переміщення методу)
+class Account(val overdraftCharge: Double) {
+    fun bankCharge(daysOverdrawn: Int): Double {
+        val baseCharge = 4.5
+        return if (daysOverdrawn > 0) baseCharge + overdraftCharge(daysOverdrawn) else baseCharge
+    }
+
+    fun overdraftCharge(daysOverdrawn: Int): Double {
+        return if (daysOverdrawn > 7) (daysOverdrawn - 7) * 1.5 else 0.0
+    }
+}
+class Account(val overdraftCharge: Double) {
+    fun bankCharge(daysOverdrawn: Int): Double {
+        val baseCharge = 4.5
+        return if (daysOverdrawn > 0) baseCharge + OverdraftCalculator.overdraftCharge(daysOverdrawn) else baseCharge
+    }
+}
+
+object OverdraftCalculator {
+    fun overdraftCharge(daysOverdrawn: Int): Double {
+        return if (daysOverdrawn > 7) (daysOverdrawn - 7) * 1.5 else 0.0
+    }
+}
+
+ Introduce Parameter Object (Запровадження об'екта параметрів)
+fun calculateDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
+    return Math.sqrt(Math.pow(x2 - x1, 2.0) + Math.pow(y2 - y1, 2.0))
+}
+data class Point(val x: Double, val y: Double)
+
+fun calculateDistance(point1: Point, point2: Point): Double {
+    return Math.sqrt(Math.pow(point2.x - point1.x, 2.0) + Math.pow(point2.y - point1.y, 2.0))
+}

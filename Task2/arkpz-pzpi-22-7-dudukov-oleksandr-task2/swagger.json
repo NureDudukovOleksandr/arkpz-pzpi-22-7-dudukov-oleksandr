@@ -1,0 +1,321 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API для моніторингу робочих умов",
+    "description": "API для роботи з даними користувачів, локаціями, сенсорами, сповіщеннями та повідомленнями.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Отримання списку всіх користувачів",
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "description": "Список користувачів",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "user_id": { "type": "string" },
+                      "first_name": { "type": "string" },
+                      "last_name": { "type": "string" },
+                      "email": { "type": "string" },
+                      "role": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Реєстрація нового користувача",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": {
+                    "type": "string",
+                    "enum": ["Employee", "Administrator"]
+                  },
+                  "phone": { "type": "string" },
+                  "location_id": { "type": "string" }
+                },
+                "required": ["first_name", "last_name", "email", "password", "role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Користувача успішно зареєстровано",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": { "type": "string" },
+                        "first_name": { "type": "string" },
+                        "last_name": { "type": "string" },
+                        "email": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при реєстрації користувача"
+          },
+          "409": {
+            "description": "Користувач з таким email вже існує"
+          }
+        }
+      }
+    },
+    "/locations": {
+      "get": {
+        "summary": "Отримання списку локацій",
+        "operationId": "getLocations",
+        "responses": {
+          "200": {
+            "description": "Список локацій",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "location_id": { "type": "string" },
+                      "name": { "type": "string" },
+                      "type": { "type": "string" },
+                      "status": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Додавання нової локації",
+        "operationId": "addLocation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "status": { "type": "string" },
+                  "capacity": { "type": "number" },
+                  "temperature": { "type": "number" },
+                  "humidity": { "type": "number" },
+                  "co2_level": { "type": "number" }
+                },
+                "required": ["name", "type", "status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Локацію успішно додано",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "location_id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "type": { "type": "string" },
+                        "status": { "type": "string" },
+                        "capacity": { "type": "number" },
+                        "temperature": { "type": "number" },
+                        "humidity": { "type": "number" },
+                        "co2_level": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при додаванні локації"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "Отримання всіх сповіщень",
+        "operationId": "getNotifications",
+        "responses": {
+          "200": {
+            "description": "Список всіх сповіщень",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "notification_id": { "type": "string" },
+                      "notification_text": { "type": "string" },
+                      "timestamp": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Надсилання сповіщення всім користувачам",
+        "operationId": "sendNotificationToAllUsers",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notification_text": { "type": "string" }
+                },
+                "required": ["notification_text"]
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Сповіщення успішно надіслано всім користувачам",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                      "notification": {
+                        "type": "object",
+                        "properties": {
+                          "notification_id": { "type": "string" },
+                          "notification_text": { "type": "string" },
+                          "timestamp": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Помилка при відправці сповіщення"
+            }
+          }
+        }
+      }
+    },
+    "/sensors": {
+      "get": {
+        "summary": "Отримання всіх сенсорів",
+        "operationId": "getSensors",
+        "responses": {
+          "200": {
+            "description": "Список всіх сенсорів",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sensor_id": { "type": "string" },
+                      "location_id": { "type": "string" },
+                      "type": { "type": "string" },
+                      "value": { "type": "number" },
+                      "timestamp": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/location-conditions": {
+      "post": {
+        "summary": "Перевірка умов локації та надсилання сповіщень",
+        "operationId": "checkLocationConditions",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_id": { "type": "string" }
+                },
+                "required": ["location_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Умови локації перевірено, сповіщення надіслано, якщо умови не відповідають",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "notification": {
+                      "type": "object",
+                      "properties": {
+                        "notification_id": { "type": "string" },
+                        "notification_text": { "type": "string" },
+                        "timestamp": { "type": "string", "format": "date-time" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при перевірці умов локації"
+          }
+        }
+      }
+    }
+  }
+}
